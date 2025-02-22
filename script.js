@@ -74,20 +74,29 @@ function takePhoto() {
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+    video.play().then(() => {
+      setTimeout(() => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        const ctx = canvas.getContext('2d');
+        try {
+          ctx.drawImage(video, 0, 0);
+          mediaStream.getTracks().forEach(track => track.stop());
+          
+          document.body.innerHTML = '';
+          const img = new Image();
+          img.onerror = (e) => console.error('加载失败:', e);
+          img.src = canvas.toDataURL('image/png');
+          document.body.appendChild(img); // 立即插入
+        } catch (e) {
+          console.error('画布绘制失败:', e);
+        }
+      }, 500); // 预留视频初始化时间
+    });
     
-    // 绘制图像
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0);
-    // 停止摄像头
-    mediaStream.getTracks().forEach(track => track.stop());
-    // 清空页面
-    document.body.innerHTML = '';
-    // 创建全屏图片
-    const img = new Image();
-    img.src = canvas.toDataURL('image/jpeg');
-    img.style.width = '100%';
-    img.style.height = '100vh';
-    img.style.objectFit = 'contain';
     
-    document.body.appendChild(img);
+    
+   
   }
